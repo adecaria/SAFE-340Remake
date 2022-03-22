@@ -1,3 +1,17 @@
+# Disclaimer: We do not claim to have written any code in this repository ourselves.
+# This project was conducted with the purpose of recreating the original work.
+# This GitHub repository is for academic purposes only. The materials uploaded here is for a course project on Applied Data Science.
+
+
+
+
+
+
+
+
+
+
+
 # SAFE: A Neural Survival Analysis Model for Fraud Early Detection
 
 In this paper, we propose a survival analysis based fraud early detection model, SAFE, that maps dynamic user activities to survival probabilities that are guaranteed to be monotonically decreasing along time. 
