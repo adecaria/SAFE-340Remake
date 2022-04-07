@@ -566,8 +566,19 @@ def prec_reca_F1(L, I):
                     np.multiply(precision, recall),
                     np.add(precision, recall)))
     F1[np.where(np.isnan(F1))] = 0
+    
+    accuracy = np.divide(np.add(np.sum(TP,axis=0),np.sum(TN,axis=0)),
+                          (np.add(np.add(np.sum(TP,axis=0),
+                                 np.sum(TN,axis=0)), np.add(np.sum(FP,axis=0),
+                                 np.sum(FN,axis=0)))))
+    accuracy[np.where(np.isnan(accuracy))] = 0
+    
+    specificity = np.divide(np.sum(TN,axis=0),
+                          np.add(np.sum(TN,axis=0),
+                                 np.sum(FP,axis=0)))
+    specificity[np.where(np.isnan(specificity))] = 0
 
-    return precision, recall, F1
+    return precision, recall, F1, accuracy, specificity
 
 
 def get_first_beat(x, y):
