@@ -12,15 +12,22 @@ global last_improvement
 global require_improvement
 from collections import defaultdict
 
+# save np.load
+np_load_old = np.load
+
+# modify the default parameters of np.load
+np.load = lambda *a,**k: np_load_old(*a, allow_pickle=True, **k)
+
+
 # load data
 #
 if len(sys.argv) != 2:
-    print("please add 1 parameter.")
+    print ("please add 1 parameter.")
     exit(0)
 
 if sys.argv[1] == "twitter":
 
-    source_path = "../twitter/"
+    source_path = "C:/Users/nswor/SAFE/twitter/"
     X_train = np.load(source_path + "X_train_var.npy")
     T_train = np.load(source_path + "T_train_var.npy")
     C_train = np.load(source_path + "C_train_var.npy")
@@ -37,7 +44,7 @@ if sys.argv[1] == "twitter":
 
 elif sys.argv[1] == "wiki":
 
-    source_path = "../wiki/v8/"
+    source_path = "C:/Users/nswor/SAFE/wiki/v9/"
     X_train = np.load(source_path + "X_train.npy")
     T_train = np.load(source_path + "T_train.npy")
     C_train = np.load(source_path + "C_train.npy")
@@ -50,10 +57,10 @@ elif sys.argv[1] == "wiki":
     T_valid = np.load(source_path + "T_valid.npy")
     C_valid = np.load(source_path + "C_valid.npy")
 
-    n_input = 8
+    n_input = 9
 
 else:
-    print("parameter is not right, twitter or wiki.")
+    print "parameter is not right, twitter or wiki."
     exit(0)
 
 
@@ -94,8 +101,9 @@ else:
 n_classes = 1
 before_steps = 10
 
+#num_units = 32
 num_units = 32
-learning_rate = .001
+learning_rate = .01
 
 out_weights = tf.Variable(tf.random_normal([num_units, n_classes]),trainable=True)
 out_bias = tf.Variable(tf.random_normal([n_classes]),trainable=True)
@@ -163,7 +171,7 @@ test_num = len(batch_x_test)*mini_batch_size_test_valid
 best_validation_accuracy = 0.0
 best_thrld = 0.0
 last_improvement = 0
-require_improvement = 20
+require_improvement = 10
 num_epoches = 500
 
 session = tf.Session()
@@ -244,7 +252,7 @@ for n_epoch in range(num_epoches):
             pp = np.asarray(pp)
             gt = np.logical_not(yy).astype(float)
             pr = np.logical_not(pp).astype(float)
-            _precision, _recall, _F1 = prec_reca_F1(gt, pr)
+            _precision, _recall, _F1, _accuracy, _specificity = prec_reca_F1(gt, pr)
 
             last_corr_rate = correct/float(valid_num)
             seq_corr_rate = (np.sum(np.asarray(early_correct), axis=0)/float(valid_num))
@@ -256,12 +264,12 @@ for n_epoch in range(num_epoches):
                 best_thrld = thrld
                 last_improvement = n_epoch+1
                 saver.save(sess=session, save_path=save_path)
-                print("**** ", n_epoch + 1, best_validation_accuracy, best_thrld)
+                print "**** ", n_epoch + 1, best_validation_accuracy, best_thrld
 
     if (n_epoch+1)-last_improvement > require_improvement:
         break
 
-    print("epoch: ", n_epoch, _mle_loss)
+    print "epoch: ", n_epoch, _mle_loss
 
 saver.restore(sess=session, save_path=save_path)
 correct = 0
@@ -320,20 +328,63 @@ yy = np.asarray(yy)
 pp = np.asarray(pp)
 gt = np.logical_not(yy).astype(float)
 pr = np.logical_not(pp).astype(float)
-_precision, _recall, _F1 = prec_reca_F1(gt, pr)
+_precision, _recall, _F1, _accuracy, _specificity = prec_reca_F1(gt, pr)
 
 seq_corr_rate = (np.sum(np.asarray(early_correct), axis=0)/float(test_num))
 
-print()
-print()
-print()
-print("precision: ", _precision)
-print("recall: ", _recall)
-print("F1: ", _F1)
-print("accuracy: ", seq_corr_rate)
+# calculating the average precision
+total_prec = 0
+for i in _precision:
+    total_prec += i
+    
+overall_prec = total_prec / len(_precision)
 
-print("------------------------------------------------------")
-for k, v in early_detect_steps.items():
-    print(k, ": ", np.mean(v), len(v))
+# calculating the average recall
+total_recall = 0
+for i in _recall:
+    total_recall += i
+    
+overall_recall = total_recall / len(_recall)
+
+# calculating the average f1 score
+total_f1 = 0
+for i in _F1:
+    total_f1 += i
+    
+overall_f1 = total_f1 / len(_F1)
+
+# calculating the average accuracy
+total_acc = 0
+for i in seq_corr_rate:
+    total_acc += i
+    
+overall_acc = total_acc / len(seq_corr_rate)
+
+# calculating the average specificity
+total_spec = 0
+for i in _specificity:
+    total_spec += i
+    
+overall_spec = total_spec / len(_specificity)
+
+print
+print
+print
+print "precision: ", _precision
+print "recall: ", _recall
+print "F1: ", _F1
+print "specificity: ", _specificity
+print "accuracy: ", seq_corr_rate
+print "------------------------------------------------------"
+print "average precision: ", overall_prec
+print "average recall: ", overall_recall
+print "average F1: ", overall_f1
+print "average specificity: ", overall_spec 
+print "average accuracy: ", overall_acc 
+
+
+#print "------------------------------------------------------"
+#for k, v in early_detect_steps.items():
+#    print k, ": ", np.mean(v), len(v)
 
 exit(0)
