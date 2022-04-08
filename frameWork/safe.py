@@ -374,7 +374,7 @@ print "precision: ", _precision
 print "recall: ", _recall
 print "F1: ", _F1
 print "specificity: ", _specificity
-print "accuracy: ", seq_corr_rate
+print "accuracy: ", _accuracy
 print "------------------------------------------------------"
 print "average precision: ", overall_prec
 print "average recall: ", overall_recall
