@@ -355,10 +355,10 @@ overall_f1 = total_f1 / len(_F1)
 
 # calculating the average accuracy
 total_acc = 0
-for i in seq_corr_rate:
+for i in _accuracy:
     total_acc += i
     
-overall_acc = total_acc / len(seq_corr_rate)
+overall_acc = total_acc / len(_accuracy)
 
 # calculating the average specificity
 total_spec = 0
